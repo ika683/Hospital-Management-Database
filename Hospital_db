@@ -1,0 +1,259 @@
+create table patients(
+    -> pt_id INT AUTO_INCREMENT PRIMARY KEY,
+    -> name VARCHAR(255) NOT NULL,
+    -> age INT NOT NULL,
+    -> gender VARCHAR(255) NOT NULL,
+    -> dateofbirth DATE NOT NULL,
+    -> Address VARCHAR(255) NOT NULL,
+    -> PhoneNumber VARCHAR(255) NOT NULL,
+    -> email VARCHAR(255) NOT NULL,
+    -> EmergencyContact VARCHAR(255) NOT NULL
+    -> );
+mysql> show tables;
++--------------------+
+| Tables_in_hospital |
++--------------------+
+| patient            |
++--------------------+
+1 row in set (0.00 sec)
+
+mysql> ^C
+mysql> CREATE TABLE Doctor (
+        DoctorID INT PRIMARY KEY AUTO_INCREMENT,
+         Name VARCHAR(100),
+         Specialization VARCHAR(100),
+         PhoneNumber VARCHAR(15),
+    ->     Email VARCHAR(100),
+    ->     DepartmentID INT,
+    ->     FOREIGN KEY (DepartmentID) REFERENCES Department(DepartmentID)
+    -> );
+ERROR 1824 (HY000): Failed to open the referenced table 'department'
+mysql> CREATE TABLE Department (
+        DepartmentID INT PRIMARY KEY AUTO_INCREMENT,
+         Name VARCHAR(100),
+         Location VARCHAR(100),
+         HeadOfDepartment VARCHAR(100)
+     );
+Query OK, 0 rows affected (0.04 sec)
+
+mysql> CREATE TABLE Doctor (
+         DoctorID INT PRIMARY KEY AUTO_INCREMENT,
+         Name VARCHAR(100),
+         Specialization VARCHAR(100),
+         PhoneNumber VARCHAR(15),
+         Email VARCHAR(100),
+         DepartmentID INT,
+         FOREIGN KEY (DepartmentID) REFERENCES Department(DepartmentID)
+     );
+Query OK, 0 rows affected (0.04 sec)
+
+mysql>
+mysql> -- Table for Nurse
+mysql> CREATE TABLE Nurse (
+    ->     NurseID INT PRIMARY KEY AUTO_INCREMENT,
+    ->     Name VARCHAR(100),
+    ->     Shift VARCHAR(50),
+    ->     PhoneNumber VARCHAR(15),
+    ->     Email VARCHAR(100),
+    ->     DepartmentID INT,
+    ->     FOREIGN KEY (DepartmentID) REFERENCES Department(DepartmentID)
+    -> );
+Query OK, 0 rows affected (0.04 sec)
+
+mysql> CREATE TABLE Appointment (
+    ->     AppointmentID INT PRIMARY KEY AUTO_INCREMENT,
+    ->     PatientID INT,
+    ->     DoctorID INT,
+    ->     AppointmentDate DATE,
+    ->     AppointmentTime TIME,
+    ->     ReasonForVisit VARCHAR(255),
+    ->     FOREIGN KEY (PatientID) REFERENCES Patient(PatientID),
+    ->     FOREIGN KEY (DoctorID) REFERENCES Doctor(DoctorID)
+    -> );
+Query OK, 0 rows affected (0.05 sec)
+
+mysql>
+mysql> -- Table for MedicalRecord
+mysql> CREATE TABLE MedicalRecord (
+         pt_RecordID INT PRIMARY KEY AUTO_INCREMENT,
+         pt_ID INT,
+         DoctorID INT,
+         VisitDate DATE,
+         Diagnosis VARCHAR(255),
+         Treatment VARCHAR(1000),
+         MedicationsPrescribed Varchar(1000),
+         FOREIGN KEY (pt_ID) REFERENCES patients(pt_ID),
+         FOREIGN KEY (DoctorID) REFERENCES Doctor(DoctorID)
+     );
+Query OK, 0 rows affected (0.04 sec)
+
+mysql>
+mysql> -- Table for Medication
+mysql> CREATE TABLE Medication (
+         pt_MedicationID INT PRIMARY KEY AUTO_INCREMENT,
+         Name VARCHAR(100),
+         Dosage VARCHAR(50),
+         SideEffects VARCHAR(255)
+     );
+Query OK, 0 rows affected (0.02 sec)
+
+mysql>
+mysql> -- Table for Prescription
+mysql> CREATE TABLE Prescription (
+         PrescriptionID INT PRIMARY KEY AUTO_INCREMENT,
+        pt_RecordID INT,
+         pt_MedicationID INT,
+         Dosage VARCHAR(50),
+         Frequency VARCHAR(50),
+         Duration VARCHAR(50),
+         FOREIGN KEY (pt_RecordID) REFERENCES MedicalRecord(pt_RecordID),
+         FOREIGN KEY (pt_MedicationID) REFERENCES Medication(pt_MedicationID)
+     );
+Query OK, 0 rows affected (0.03 sec)
+
+mysql>
+mysql> -- Table for Bed
+mysql> CREATE TABLE Bed (
+         pt_BedID INT PRIMARY KEY AUTO_INCREMENT,
+         RoomNumber VARCHAR(50),
+         DepartmentID INT,
+         Status VARCHAR(10),
+         FOREIGN KEY (DepartmentID) REFERENCES Department(DepartmentID)
+     );
+Query OK, 0 rows affected (0.02 sec)
+
+mysql>
+mysql> -- Table for Admission
+mysql> CREATE TABLE Admission (
+         pt_AdmissionID INT PRIMARY KEY AUTO_INCREMENT,
+         pt_ID INT,
+         pt_BedID INT,
+         AdmissionDate DATE,
+         DischargeDate DATE,
+         FOREIGN KEY (pt_ID) REFERENCES patients(pt_ID),
+         FOREIGN KEY (pt_BedID) REFERENCES Bed(pt_BedID)
+     );
+Query OK, 0 rows affected (0.03 sec)
+
+mysql>
+mysql> -- Table for Bill
+mysql> CREATE TABLE Bill (
+         pt_BillID INT PRIMARY KEY AUTO_INCREMENT,
+         pt_ID INT,
+         pt_AdmissionID INT,
+         pt_AppointmentID INT,
+         Amount DECIMAL(10, 2),
+         DateIssued DATE,
+         FOREIGN KEY (pt_ID) REFERENCES patients(pt_ID),
+         FOREIGN KEY (pt_AdmissionID) REFERENCES Admission(pt_AdmissionID),
+         FOREIGN KEY (pt_AppointmentID) REFERENCES appointments(pt_AppointmentID)
+     );
+Query OK, 0 rows affected (0.04 sec)
+
+mysql>
+mysql> -- Table for Staff
+mysql> CREATE TABLE Staff (
+         StaffID INT PRIMARY KEY AUTO_INCREMENT,
+         Name VARCHAR(100),
+         Role VARCHAR(100),
+         PhoneNumber VARCHAR(15),
+         Email VARCHAR(100),
+         DepartmentID INT,
+         FOREIGN KEY (DepartmentID) REFERENCES Department(DepartmentID)
+     );
+Query OK, 0 rows affected (0.03 sec)
+
+mysql>
+mysql> -- Table for Surgery
+mysql> CREATE TABLE Surgery (
+         pt_SurgeryID INT PRIMARY KEY AUTO_INCREMENT,
+         pt_ID INT,
+         DoctorID INT,
+         SurgeryDate DATE,
+         SurgeryType VARCHAR(100),
+         Outcome TEXT,
+         FOREIGN KEY (pt_ID) REFERENCES patients(pt_ID),
+         FOREIGN KEY (DoctorID) REFERENCES Doctor(DoctorID)
+     );
+Query OK, 0 rows affected (0.03 sec)
+
+mysql>
+mysql> -- Table for LaboratoryTest
+mysql> CREATE TABLE LaboratoryTest (
+         pt_TestID INT PRIMARY KEY AUTO_INCREMENT,
+         pt_ID INT,
+         TestName VARCHAR(100),
+         TestDate DATE,
+         Result TEXT,
+         FOREIGN KEY (pt_ID) REFERENCES patients(pt_ID)
+     );
+Query OK, 0 rows affected (0.03 sec)
+
+mysql>
+mysql> -- Table for Insurance
+mysql> CREATE TABLE Insurance (
+         pt_InsuranceID INT PRIMARY KEY AUTO_INCREMENT,
+         pt_ID INT,
+         Provider VARCHAR(100),
+         PolicyNumber VARCHAR(100),
+         CoverageDetails TEXT,
+         FOREIGN KEY (pt_ID) REFERENCES patients(pt_ID)
+     );
+Query OK, 0 rows affected (0.04 sec)
+
+mysql> show tables;
++--------------------+
+| Tables_in_hospital |
++--------------------+
+| admission          |
+| appointment        |
+| bed                |
+| bill               |
+| department         |
+| doctor             |
+| insurance          |
+| laboratorytest     |
+| medicalrecord      |
+| medication         |
+| nurse              |
+| patient            |
+| prescription       |
+| staff              |
+| surgery            |
++--------------------+
+CREATE TABLE AuditColumns (
+    CreateUser varchar(50) ,
+    CreateDate datetime ,
+    LastUpdateUser varchar(50),
+    LastUpdateDate datetime 
+    );
+ALTER TABLE admission
+ADD COLUMN active_ int default 1;
+Alter Table bed
+Add column active_ int default 1;
+alter table surgery
+add column active_ int default 1;
+use hospital;
+CREATE TABLE AuditColumns (
+    CreateDate datetime ,
+    LastUpdateUser varchar(50),
+    LastUpdateDate datetime 
+    );
+ALTER TABLE admission
+ADD COLUMN active_ int default 1;
+Alter Table bed
+Add column active_ int default 1;
+alter table surgery
+add column active_ int default 1;
+ALTER TABLE admission
+DROP COLUMN active_ ;
+ALTER TABLE bed
+DROP COLUMN active_ ;
+ALTER TABLE surgery
+DROP COLUMN active_ ;
+ALTER TABLE admission
+ADD COLUMN activity_status int default 1 ;
+ALTER TABLE bed
+ADD COLUMN activity_status int default 1 ;
+ALTER TABLE surgery
+ADD COLUMN activity_status int default 1 ;
